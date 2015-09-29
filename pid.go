@@ -1,0 +1,85 @@
+// pid
+package pid
+
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"strconv"
+	"strings"
+)
+
+type PID struct {
+	PID     string
+	PIDFile string
+	Exe     string
+}
+
+func New() *PID {
+	p := PID{}
+	return &p
+}
+
+func (p *PID) init() {
+	p.Exe = path.Base(os.Args[0])
+	p.PIDFile = "./" + p.Exe + ".run"
+}
+
+// verifica se esiste il PIDFile;
+// se esiste legge il PID e controlla se e' running il processo associato
+func (p *PID) check() bool {
+	bpid, err := ioutil.ReadFile(p.PIDFile)
+	p.PID = strings.TrimRight(string(bpid), "\n")
+	if err == nil && p.readCmd() {
+		return true
+	}
+	return false
+}
+
+// controlla se esiste il processo associato al PID,
+// se il cmd e' lo stesso e se e' in esecuzione.
+func (p *PID) readCmd() bool {
+	bcmd, err := ioutil.ReadFile(path.Join("/proc", p.PID, "cmdline"))
+	// non esiste la dir relativa al PID su /proc
+	if err != nil {
+		fmt.Println("cmdline error: ", err)
+		return false
+	}
+	cmd := bytes.Trim(bcmd, "\x00")
+	if strings.Contains(string(cmd), p.Exe) {
+		return true
+	} else {
+		fmt.Printf("PID %s used by %s\n", p, cmd)
+		return true
+	}
+	return true
+}
+
+// scrive il PID nel PIDFile
+func (p *PID) Write() {
+
+	p.init()
+
+	if p.check() {
+		fmt.Println("Running: ", p.PID)
+		os.Exit(-6)
+	}
+
+	fpid, err := os.OpenFile(p.PIDFile, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		fmt.Println("PID file error: ", err.Error())
+		os.Exit(-5)
+	}
+	fpid.WriteString(strconv.Itoa(os.Getpid()))
+	fpid.Close()
+}
+
+// Cancella il PIDFile
+func (p *PID) Remove() {
+	err := os.Remove(p.PIDFile)
+	if err != nil {
+
+	}
+}
