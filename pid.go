@@ -12,26 +12,27 @@ import (
 )
 
 type PID struct {
-	PID     string
+	pid     string
 	PIDFile string
-	Exe     string
+	exe     string
 }
 
 func New() *PID {
 	p := PID{}
+	p.init()
 	return &p
 }
 
 func (p *PID) init() {
-	p.Exe = path.Base(os.Args[0])
-	p.PIDFile = "./" + p.Exe + ".run"
+	p.exe = path.Base(os.Args[0])
+	p.PIDFile = "./" + p.exe + ".run"
 }
 
 // verifica se esiste il PIDFile;
 // se esiste legge il PID e controlla se e' running il processo associato
 func (p *PID) check() bool {
 	bpid, err := ioutil.ReadFile(p.PIDFile)
-	p.PID = strings.TrimRight(string(bpid), "\n")
+	p.pid = strings.TrimRight(string(bpid), "\n")
 	if err == nil && p.readCmd() {
 		return true
 	}
@@ -41,14 +42,14 @@ func (p *PID) check() bool {
 // controlla se esiste il processo associato al PID,
 // se il cmd e' lo stesso e se e' in esecuzione.
 func (p *PID) readCmd() bool {
-	bcmd, err := ioutil.ReadFile(path.Join("/proc", p.PID, "cmdline"))
+	bcmd, err := ioutil.ReadFile(path.Join("/proc", p.pid, "cmdline"))
 	// non esiste la dir relativa al PID su /proc
 	if err != nil {
 		fmt.Println("cmdline error: ", err)
 		return false
 	}
 	cmd := bytes.Trim(bcmd, "\x00")
-	if strings.Contains(string(cmd), p.Exe) {
+	if strings.Contains(string(cmd), p.exe) {
 		return true
 	} else {
 		fmt.Printf("PID %s used by %s\n", p, cmd)
@@ -60,10 +61,8 @@ func (p *PID) readCmd() bool {
 // scrive il PID nel PIDFile
 func (p *PID) Write() {
 
-	p.init()
-
 	if p.check() {
-		fmt.Println("Running: ", p.PID)
+		fmt.Println("Running: ", p.pid)
 		os.Exit(-6)
 	}
 
