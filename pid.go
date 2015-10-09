@@ -1,5 +1,5 @@
 // pid
-package pid
+package pidlib
 
 import (
 	"bytes"
