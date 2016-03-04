@@ -50,7 +50,6 @@ func (p *PID) readCmd() bool {
 	}
 	cmd := bytes.Trim(bcmd, "\x00")
 	if ! strings.Contains(string(cmd), p.exe) {
-	{
 		fmt.Printf("PID %s used by %s\n", p, cmd)
 		return true
 	}
