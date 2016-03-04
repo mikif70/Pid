@@ -1,4 +1,3 @@
-// Package pidlib
 package pidlib
 
 import (
@@ -11,20 +10,20 @@ import (
 	"strings"
 )
 
+// PID struttura
 type PID struct {
 	pid     string
 	PIDFile string
 	exe     string
 }
 
-// New: crea un nuovo PID
+// New crea un nuovo PID
 func New() *PID {
 	p := PID{}
 	p.init()
 	return &p
 }
 
-// init la struttura PID
 func (p *PID) init() {
 	p.exe = path.Base(os.Args[0])
 	p.PIDFile = "./" + p.exe + ".run"
@@ -59,7 +58,7 @@ func (p *PID) readCmd() bool {
 	return true
 }
 
-// Write: scrive il PID nel PIDFile
+// Write scrive il PID nel PIDFile
 func (p *PID) Write() {
 
 	if p.check() {
@@ -76,7 +75,7 @@ func (p *PID) Write() {
 	fpid.Close()
 }
 
-// Remove: Cancella il PIDFile
+// Remove Cancella il PIDFile
 func (p *PID) Remove() {
 	err := os.Remove(p.PIDFile)
 	if err != nil {
