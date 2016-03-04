@@ -17,12 +17,14 @@ type PID struct {
 	exe     string
 }
 
+// crea un nuovo PID
 func New() *PID {
 	p := PID{}
 	p.init()
 	return &p
 }
 
+// init la struttura PID
 func (p *PID) init() {
 	p.exe = path.Base(os.Args[0])
 	p.PIDFile = "./" + p.exe + ".run"
@@ -49,11 +51,11 @@ func (p *PID) readCmd() bool {
 		return false
 	}
 	cmd := bytes.Trim(bcmd, "\x00")
-	if ! strings.Contains(string(cmd), p.exe) {
+	if !strings.Contains(string(cmd), p.exe) {
 		fmt.Printf("PID %s used by %s\n", p, cmd)
 		return true
 	}
-	
+
 	return true
 }
 
