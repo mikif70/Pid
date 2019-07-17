@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -15,6 +16,7 @@ type PID struct {
 	pid     string
 	PIDFile string
 	exe     string
+	path    string
 }
 
 // New crea un nuovo PID
@@ -24,9 +26,16 @@ func New() *PID {
 	return &p
 }
 
-func (p *PID) init() {
+func (p *PID) init() error {
+	var err error
+	p.path, err = filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return err
+	}
 	p.exe = path.Base(os.Args[0])
-	p.PIDFile = "./" + p.exe + ".run"
+	p.PIDFile = path.Join(p.path, p.exe) + ".run"
+
+	return nil
 }
 
 // verifica se esiste il PIDFile;
