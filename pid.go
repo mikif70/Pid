@@ -11,6 +11,10 @@ import (
 	"strings"
 )
 
+const (
+	_VER = "1.0.1"
+)
+
 // PID struttura
 type PID struct {
 	pid     string
